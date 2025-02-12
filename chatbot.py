@@ -4,8 +4,11 @@ from datetime import datetime
 
 API_URL = "http://localhost:8000/api/v1"
 USER_NAME = "staple_ai_client"
+LIST_OF_FEATURES=["Semantic Seach","Contextual Summarization"]
+PREFERRED_TEXT_LENGTH=["Short","Medium","Long"]
 
 st.title("Staple AI - LLM-powered Contextual Search and Summarization")
+
 
 def show_loading_overlay(message="Uploading..."):
     loading_css = """
@@ -56,8 +59,11 @@ with left_col:
     if "selected_doc" not in st.session_state:
         st.session_state.selected_doc = None
 
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+    if "messages_shown" not in st.session_state:
+        st.session_state.messages_shown = []
+    
+    if "messages_shown" not in st.session_state:
+        st.session_state.messages_stored = []
 
     if "documents" not in st.session_state:
         st.session_state.documents = fetch_documents()
@@ -67,9 +73,15 @@ with left_col:
 
     # Display document selector from session state
     if st.session_state.documents:
-        print("documents_inside: ", st.session_state.documents)
+        previous_doc = st.session_state.get("selected_doc", None)  # Store previous document
+
         st.session_state.selected_doc = st.selectbox("Select a document:", st.session_state.documents, key="document_selector")
-        st.session_state.messages = []
+        st.session_state.messages_shown = []
+        
+        # Reset messages ONLY when the selected document changes
+        if previous_doc != st.session_state.selected_doc:
+            st.session_state.messages_stored = []
+        
         st.write(f"You selected: {st.session_state.selected_doc}")
     else:
         st.write("No documents uploaded yet.")
@@ -90,7 +102,6 @@ with left_col:
 
                 # Refresh document list only after a successful upload
                 st.session_state.documents = fetch_documents()
-                print("documents: ", st.session_state.documents)
                 st.session_state.file_uploaded = True  # Mark file as uploaded
 
                 # Force rerun to update dropdown
@@ -104,12 +115,20 @@ with left_col:
 
 with right_col:
     st.subheader("💬 Chat")
-
+    
+    selected_feature=st.selectbox("Choose feature: Search or Summarize ? ",LIST_OF_FEATURES,index=0)
+    
+    st.session_state.selected_feature=selected_feature
+    
+    if st.session_state.selected_feature == LIST_OF_FEATURES[1]:
+        selected_length=st.selectbox("What's your preferred length of summary ? ",PREFERRED_TEXT_LENGTH,index=1)
+        st.session_state.selected_length=selected_length
+        
     # Ensure DOC_NAME is assigned properly
     DOC_NAME = st.session_state.selected_doc if st.session_state.selected_doc else ""
 
-    if "messages" not in st.session_state:
-        st.session_state.messages = []
+    if "messages_shown" not in st.session_state:
+        st.session_state.messages_shown = []
 
     chat_css = """
     <style>
@@ -146,7 +165,7 @@ with right_col:
     """
     st.markdown(chat_css, unsafe_allow_html=True)
 
-    for message in st.session_state.messages:
+    for message in st.session_state.messages_shown:
         role_class = "chat-user" if message["role"] == "user" else "chat-assistant"
         icon = "👤" if message["role"] == "user" else "🤖"  # User and Assistant icons
 
@@ -159,37 +178,59 @@ with right_col:
             """, unsafe_allow_html=True)
 
     if prompt := st.chat_input("Ask a question..."):
-        st.session_state.messages.append({
-            "role": "user",
-            "content": prompt,
-            "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
-        })
+        if not DOC_NAME:
+            st.error("You must select the document first")
+        else: 
+            st.session_state.messages_shown.append({
+                "role": "user",
+                "content": prompt,
+                "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
+            })
+            
+            st.session_state.messages_stored.append({
+                "role": "user",
+                "content": prompt,
+                "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
+            })
 
-        # Display user message immediately
-        with st.container():
-            st.markdown(f"""
-                <div class='chat-message'>
-                    <span class='chat-icon'>👤</span>
-                    <div class='chat-user'>{prompt}</div>
-                </div>
-            """, unsafe_allow_html=True)
+            # Display user message immediately
+            with st.container():
+                st.markdown(f"""
+                    <div class='chat-message'>
+                        <span class='chat-icon'>👤</span>
+                        <div class='chat-user'>{prompt}</div>
+                    </div>
+                """, unsafe_allow_html=True)
 
-        with st.spinner("Thinking..."):
-            response = requests.post(f"{API_URL}/semantic_search/{DOC_NAME}", json={"list_of_messages": st.session_state.messages})
+            with st.spinner("Thinking..."):
+                if st.session_state.selected_feature == LIST_OF_FEATURES[0]:
+                    print("messages_stored: ",st.session_state.messages_stored)
+                    response = requests.post(f"{API_URL}/semantic_search/{DOC_NAME}", json={"list_of_messages": st.session_state.messages_stored})
+                else:
+                    print("messages_stored: ",st.session_state.messages_stored)
+                    response = requests.post(f"{API_URL}/generate_summarization/{DOC_NAME}", json={
+                        "list_of_messages": st.session_state.messages_stored,
+                        "preferred_response_length":st.session_state.selected_length})
 
-        assistant_response = "Error: Unable to get response from backend" if response.status_code != 200 else response.json().get('response', 'No response')
+            assistant_response = "Error: Unable to get response from backend" if response.status_code != 200 else response.json().get('response', 'No response')
 
-        # Display assistant response
-        with st.container():
-            st.markdown(f"""
-                <div class='chat-message'>
-                    <span class='chat-icon'>🤖</span>
-                    <div class='chat-assistant'>{assistant_response}</div>
-                </div>
-            """, unsafe_allow_html=True)
+            # Display assistant response
+            with st.container():
+                st.markdown(f"""
+                    <div class='chat-message'>
+                        <span class='chat-icon'>🤖</span>
+                        <div class='chat-assistant'>{assistant_response}</div>
+                    </div>
+                """, unsafe_allow_html=True)
 
-        st.session_state.messages.append({
-            "role": "assistant",
-            "content": assistant_response,
-            "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
-        })
+            st.session_state.messages_shown.append({
+                "role": "assistant",
+                "content": assistant_response,
+                "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
+            })
+            
+            st.session_state.messages_stored.append({
+                "role": "assistant",
+                "content": assistant_response,
+                "timestamp": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S")
+            })
