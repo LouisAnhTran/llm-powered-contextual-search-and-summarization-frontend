@@ -55,15 +55,18 @@ This section outlines the technologies and tools used to develop the application
 
 ### Prerequisites
 
-1. Poetry:
-  - Use the follow command to check whether poetry is installed in your machine
+1. Backend Setup Required
+Before setting up the frontend, ensure the Backend is running. First, access the [Backend repository](https://github.com/LouisAnhTran/llm-powered-contextual-search-and-summarization-backend) and follow the setup instructions to get it up and running. Once the Backend is ready, return to this repository to proceed with the frontend setup.
+
+2. Poetry:
+  - Use the following command to check whether poetry is installed in your machine
 ```
 poetry --version
 ```
   - If poetry is not yet installed in your machine, please follow the link below to install Poetry, which is a common tool for dependency management and packaging in Python, specially for AI Applications.
 [Poetry](https://python-poetry.org/docs/)
 
-2. Clone the project to your local machine.
+3. Clone the project to your local machine.
 
   ``` 
   git clone https://github.com/LouisAnhTran/llm-powered-contextual-search-and-summarization-frontend.git
