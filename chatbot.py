@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 from datetime import datetime
 
-API_URL = "http://localhost:8000/api/v1"
+API_URL = "http://localhost:8080/api/v1"
 USER_NAME = "staple_ai_client"
 LIST_OF_FEATURES=["Semantic Seach","Contextual Summarization"]
 PREFERRED_TEXT_LENGTH=["Short","Medium","Long"]
@@ -208,6 +208,11 @@ with right_col:
                     response = requests.post(f"{API_URL}/semantic_search/{DOC_NAME}", json={"list_of_messages": st.session_state.messages_stored})
                 else:
                     print("messages_stored: ",st.session_state.messages_stored)
+                    
+                    
+                    
+                    
+                    
                     response = requests.post(f"{API_URL}/generate_summarization/{DOC_NAME}", json={
                         "list_of_messages": st.session_state.messages_stored,
                         "preferred_response_length":st.session_state.selected_length})
