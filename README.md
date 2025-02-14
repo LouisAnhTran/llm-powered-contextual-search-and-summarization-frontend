@@ -55,10 +55,11 @@ This section outlines the technologies and tools used to develop the application
 
 ### Prerequisites
 
-1. Backend Setup Required
-Before setting up the frontend, ensure the Backend is running. First, access the [Backend repository](https://github.com/LouisAnhTran/llm-powered-contextual-search-and-summarization-backend) and follow the setup instructions to get it up and running. Once the Backend is ready, return to this repository to proceed with the frontend setup.
+1. Backend Setup Required:
+   
+- Before setting up the frontend, ensure the Backend is running. First, access the [Backend repository](https://github.com/LouisAnhTran/llm-powered-contextual-search-and-summarization-backend) and follow the setup instructions to get it up and running. Once the Backend is ready, return to this repository to proceed with the frontend setup.
 
-2. Poetry:
+3. Poetry:
   - Use the following command to check whether poetry is installed in your machine
 ```
 poetry --version
