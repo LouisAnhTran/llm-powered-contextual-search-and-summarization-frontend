@@ -4,7 +4,7 @@ from datetime import datetime
 import os
 
 
-BACKEND_API_URL = 'http://localhost:8080/api/v1'
+BACKEND_API_URL = 'http://backend:8080/api/v1' if os.getenv("HOSTNAME") else  'http://localhost:8080/api/v1'
 TENANT = 'staple_ai_client'
 LIST_OF_FEATURES=["Semantic Seach","Contextual Summarization"]
 PREFERRED_TEXT_LENGTH=["Short","Medium","Long"]
