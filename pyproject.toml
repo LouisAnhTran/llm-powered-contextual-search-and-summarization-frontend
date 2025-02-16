@@ -11,6 +11,7 @@ openai = "^1.55.0"
 streamlit = "^1.40.1"
 pypdf2 = "^3.0.1"
 watchdog = "^6.0.0"
+python-dotenv = "^1.0.1"
 
 
 [build-system]

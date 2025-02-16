@@ -1,9 +1,11 @@
 import streamlit as st
 import requests
 from datetime import datetime
+import os
 
-API_URL = "http://localhost:8080/api/v1"
-USER_NAME = "staple_ai_client"
+
+BACKEND_API_URL = 'http://localhost:8080/api/v1'
+TENANT = 'staple_ai_client'
 LIST_OF_FEATURES=["Semantic Seach","Contextual Summarization"]
 PREFERRED_TEXT_LENGTH=["Short","Medium","Long"]
 
@@ -37,7 +39,7 @@ def hide_loading_overlay():
 
 # Fetch documents list once
 def fetch_documents():
-    response = requests.get(f"{API_URL}/get_uploaded_documents")
+    response = requests.get(f"{BACKEND_API_URL}/get_uploaded_documents")
     if response.status_code == 200:
         return response.json().get("response", [])
     else:
@@ -93,7 +95,7 @@ with left_col:
         show_loading_overlay("Uploading document and triggering indexing...")
         try:
             files = {"file": (uploaded_file.name, uploaded_file, "application/pdf")}
-            response = requests.post(f"{API_URL}/upload_document_and_trigger_indexing", files=files)
+            response = requests.post(f"{BACKEND_API_URL}/upload_document_and_trigger_indexing", files=files)
             hide_loading_overlay()  # Hide loading overlay after request
 
             if response.status_code == 200:
@@ -205,7 +207,7 @@ with right_col:
             with st.spinner("Thinking..."):
                 if st.session_state.selected_feature == LIST_OF_FEATURES[0]:
                     print("messages_stored: ",st.session_state.messages_stored)
-                    response = requests.post(f"{API_URL}/semantic_search/{DOC_NAME}", json={"list_of_messages": st.session_state.messages_stored})
+                    response = requests.post(f"{BACKEND_API_URL}/semantic_search/{DOC_NAME}", json={"list_of_messages": st.session_state.messages_stored})
                 else:
                     print("messages_stored: ",st.session_state.messages_stored)
                     
@@ -213,7 +215,7 @@ with right_col:
                     
                     
                     
-                    response = requests.post(f"{API_URL}/generate_summarization/{DOC_NAME}", json={
+                    response = requests.post(f"{BACKEND_API_URL}/generate_summarization/{DOC_NAME}", json={
                         "list_of_messages": st.session_state.messages_stored,
                         "preferred_response_length":st.session_state.selected_length})
 
