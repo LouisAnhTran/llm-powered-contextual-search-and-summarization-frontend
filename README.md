@@ -49,6 +49,18 @@ This section outlines the technologies and tools used to develop the application
 * Caching: Redis
 * Parsing large PDFs document: PyMuPDF
 
+## Main components:
+
+- API Endpoints are defined under [API Endpoints](https://github.com/LouisAnhTran/llm-powered-contextual-search-and-summarization-backend/blob/main/src/api/v1/app.py)
+- Document indexing pipeline is defined under [Document Indexing Pipeline](https://github.com/LouisAnhTran/llm-powered-contextual-search-and-summarization-backend/blob/main/src/gen_ai/rag/doc_processing.py)
+- Handling of LLM API calls and Chaining are managed and defined under [LLM API Calls + Chaining](https://github.com/LouisAnhTran/llm-powered-contextual-search-and-summarization-backend/blob/main/src/gen_ai/rag/chat_processing.py)
+- Prompt templates are defined under [Prompt Templates](https://github.com/LouisAnhTran/llm-powered-contextual-search-and-summarization-backend/blob/main/src/gen_ai/rag/prompt_template.py)
+- All constant variables needed to run the application are defined under [Configurations](https://github.com/LouisAnhTran/llm-powered-contextual-search-and-summarization-backend/blob/main/src/config.py)
+
+## Application Demo:
+
+[Watch the demo video on YouTube](https://www.youtube.com/watch?v=loZN4fdBfdU)
+
 ## Quick Application run using Docker
 
 1. Install Docker:
@@ -113,11 +125,16 @@ This section outlines the technologies and tools used to develop the application
             - backend
 
      ```
-  6. Run the application:
+  
+  - If you have followed all the steps correctly, your current directory should resemble the image below:
+
+![Screenshot 2025-02-17 at 1 14 39 PM](https://github.com/user-attachments/assets/b31dbade-ddb4-44ea-a814-c4f09c5a3d0c)
+  5. Run the application:
   - Run the following command to spin up three Docker containers (backend, frontend, and Redis server) to test the application:
    ```
     docker-compose up --build 
    ```
+  - Wait for 10 seconds for the three containers to finish spinning up and running. Then, the application (frontend) should be running on port 8501. You can access it at [http://localhost:8501](http://localhost:8501)
   - To stop all running containers, press CTRL + C, then run:
   ```
     docker-compose down
